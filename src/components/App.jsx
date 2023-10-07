@@ -98,12 +98,36 @@ const devicesData = [
 export class App extends Component {
   state = {
     devices: devicesData,
+    filter: '',
+  };
+  onDelete = deviceId => {
+    this.setState({
+      devices: this.state.devices.filter(device => device.id !== deviceId),
+    });
+  };
+  onChangeFilter = event => {
+    this.setState({
+      filter: event.target.value,
+    });
   };
   render() {
+    const filteredPosts = this.state.devices.filter(device =>
+      device.title
+        .toLocaleLowerCase()
+        .includes(this.state.filter.toLocaleLowerCase())
+    );
     return (
       <div>
         <h2>Hello from App!</h2>
-        <PostList devices={this.state.devices} />
+        <label>
+          <span>Enter title to fiend post</span>
+          <input
+            onChange={this.onChangeFilter}
+            value={this.state.filter}
+            type="text"
+          />
+        </label>
+        <PostList onDelete={this.onDelete} devices={filteredPosts} />
       </div>
     );
   }
