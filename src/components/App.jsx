@@ -118,6 +118,9 @@ export class App extends Component {
     );
     return (
       <div>
+        {this.state.filter === 'promo' && (
+          <h1>congrats yuo promocode : #4324 - 40% discount</h1>
+        )}
         <h2>Hello from App!</h2>
         <label>
           <span>Enter title to fiend post</span>
