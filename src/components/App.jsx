@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { nanoid } from 'nanoid'
+import { nanoid } from 'nanoid';
 import imgDevice from '../assets/images/device.avif';
 import { PostList } from './PostList/PostList';
 import { DeviceForm } from './DeviceForm/DeviceForm';
+import { Modal } from './ModalWindow/ModalWindow';
 
 const devicesData = [
   {
@@ -100,8 +101,8 @@ const devicesData = [
 export const App = () => {
   const [devices, setDevices] = useState(devicesData);
   const [filter, setFilter] = useState('');
-
-
+  const [isOpen, setisOpen] = useState(false);
+  const [modalData, setmodalData] = useState('');
   const onDelete = deviceId => {
     setDevices(devices.filter(device => device.id !== deviceId));
   };
@@ -110,42 +111,66 @@ export const App = () => {
     setFilter(event.target.value);
   };
 
-  const onAddDevice=(formData)=>{
-   const hasDuplicates = devices.some(device=>device.title===formData.title)
-   if (hasDuplicates) {
-    alert("This device is already in the list")
-   }
-   const finalDevice ={
-    ...formData,coverImage: imgDevice,id:nanoid()
-   }
-   setDevices([...devices,finalDevice])
+  const onOpenModal = data => {
+    setisOpen(true);
+    setmodalData(data);
+  };
 
-  }
+  const onCloseModal = () => {
+    setisOpen(false);
+  };
+
+  const toggleFavorite = deviceId => {
+    setDevices(
+      devices.map(device => {
+        if (device.id === deviceId) {
+          return {
+            ...device,
+            isFavorite: !device.isFavorite,
+          };
+        }
+        return device;
+      })
+    );
+  };
+
+  const onAddDevice = formData => {
+    const hasDuplicates = devices.some(
+      device => device.title === formData.title
+    );
+    if (hasDuplicates) {
+      alert('This device is already in the list');
+    }
+    const finalDevice = {
+      ...formData,
+      coverImage: imgDevice,
+      id: nanoid(),
+    };
+    setDevices([...devices, finalDevice]);
+  };
 
   const filteredPosts = devices.filter(device =>
-    device.title
-      .toLocaleLowerCase()
-      .includes(filter.toLocaleLowerCase())
+    device.title.toLocaleLowerCase().includes(filter.toLocaleLowerCase())
   );
 
   return (
     <div>
-      <DeviceForm onAddDevice={onAddDevice}/>
+      <DeviceForm onAddDevice={onAddDevice} />
       {filter === 'promo' && (
         <h1>congrats yuo promocode : #4324 - 40% discount</h1>
       )}
       <h2>Hello from App!</h2>
       <label>
         <span>Enter title to fiend post</span>
-        <input
-          onChange={onChangeFilter}
-          value={filter}
-          type="text"
-        />
+        <input onChange={onChangeFilter} value={filter} type="text" />
       </label>
-      <PostList onDelete={onDelete} devices={filteredPosts} />
+      <PostList
+        toggleFavorite={toggleFavorite}
+        onOpenModal={onOpenModal}
+        onDelete={onDelete}
+        devices={filteredPosts}
+      />
+      {isOpen && <Modal modalData={modalData} onCloseModal={onCloseModal} />}
     </div>
   );
 };
-
-
