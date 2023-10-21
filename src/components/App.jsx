@@ -1,6 +1,8 @@
-import { Component } from 'react';
+import { useState } from 'react';
+import { nanoid } from 'nanoid'
 import imgDevice from '../assets/images/device.avif';
 import { PostList } from './PostList/PostList';
+import { DeviceForm } from './DeviceForm/DeviceForm';
 
 const devicesData = [
   {
@@ -95,43 +97,55 @@ const devicesData = [
   },
 ];
 
-export class App extends Component {
-  state = {
-    devices: devicesData,
-    filter: '',
+export const App = () => {
+  const [devices, setDevices] = useState(devicesData);
+  const [filter, setFilter] = useState('');
+
+
+  const onDelete = deviceId => {
+    setDevices(devices.filter(device => device.id !== deviceId));
   };
-  onDelete = deviceId => {
-    this.setState({
-      devices: this.state.devices.filter(device => device.id !== deviceId),
-    });
+
+  const onChangeFilter = event => {
+    setFilter(event.target.value);
   };
-  onChangeFilter = event => {
-    this.setState({
-      filter: event.target.value,
-    });
-  };
-  render() {
-    const filteredPosts = this.state.devices.filter(device =>
-      device.title
-        .toLocaleLowerCase()
-        .includes(this.state.filter.toLocaleLowerCase())
-    );
-    return (
-      <div>
-        {this.state.filter === 'promo' && (
-          <h1>congrats yuo promocode : #4324 - 40% discount</h1>
-        )}
-        <h2>Hello from App!</h2>
-        <label>
-          <span>Enter title to fiend post</span>
-          <input
-            onChange={this.onChangeFilter}
-            value={this.state.filter}
-            type="text"
-          />
-        </label>
-        <PostList onDelete={this.onDelete} devices={filteredPosts} />
-      </div>
-    );
+
+  const onAddDevice=(formData)=>{
+   const hasDuplicates = devices.some(device=>device.title===formData.title)
+   if (hasDuplicates) {
+    alert("This device is already in the list")
+   }
+   const finalDevice ={
+    ...formData,coverImage: imgDevice,id:nanoid()
+   }
+   setDevices([...devices,finalDevice])
+
   }
-}
+
+  const filteredPosts = devices.filter(device =>
+    device.title
+      .toLocaleLowerCase()
+      .includes(filter.toLocaleLowerCase())
+  );
+
+  return (
+    <div>
+      <DeviceForm onAddDevice={onAddDevice}/>
+      {filter === 'promo' && (
+        <h1>congrats yuo promocode : #4324 - 40% discount</h1>
+      )}
+      <h2>Hello from App!</h2>
+      <label>
+        <span>Enter title to fiend post</span>
+        <input
+          onChange={onChangeFilter}
+          value={filter}
+          type="text"
+        />
+      </label>
+      <PostList onDelete={onDelete} devices={filteredPosts} />
+    </div>
+  );
+};
+
+
