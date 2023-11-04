@@ -1,137 +1,52 @@
-import { useState } from 'react';
 import { nanoid } from 'nanoid';
 import imgDevice from '../assets/images/device.avif';
 import { PostList } from './PostList/PostList';
 import { DeviceForm } from './DeviceForm/DeviceForm';
 import { Modal } from './ModalWindow/ModalWindow';
-
-const devicesData = [
-  {
-    id: 1,
-    title: 'Smartphone',
-    brand: 'Apple',
-    price: 999.99,
-    type: 'Mobile',
-    coverImage: imgDevice,
-    isFavorite: false,
-  },
-  {
-    id: 2,
-    title: 'Laptop',
-    brand: 'Dell',
-    price: 1299.99,
-    type: 'Computer',
-    coverImage: imgDevice,
-    isFavorite: true,
-  },
-  {
-    id: 3,
-    title: 'Smartwatch',
-    brand: 'Samsung',
-    price: 249.99,
-    type: 'Wearable',
-    coverImage: imgDevice,
-    isFavorite: true,
-  },
-  {
-    id: 4,
-    title: 'Tablet',
-    brand: 'Amazon',
-    price: 199.99,
-    type: 'Mobile',
-    coverImage: imgDevice,
-    isFavorite: false,
-  },
-  {
-    id: 5,
-    title: 'TV',
-    brand: 'Sony',
-    price: 799.99,
-    type: 'Electronics',
-    coverImage: imgDevice,
-    isFavorite: false,
-  },
-  {
-    id: 6,
-    title: 'Gaming Console',
-    brand: 'Microsoft',
-    price: 399.99,
-    type: 'Gaming',
-    coverImage: imgDevice,
-    isFavorite: false,
-  },
-  {
-    id: 7,
-    title: 'Camera',
-    brand: 'Canon',
-    price: 599.99,
-    type: 'Photography',
-    coverImage: imgDevice,
-    isFavorite: false,
-  },
-  {
-    id: 8,
-    title: 'Headphones',
-    brand: 'Sony',
-    price: 149.99,
-    type: 'Audio',
-    coverImage: imgDevice,
-    isFavorite: false,
-  },
-  {
-    id: 9,
-    title: 'Router',
-    brand: 'Linksys',
-    price: 79.99,
-    type: 'Networking',
-    coverImage: imgDevice,
-    isFavorite: false,
-  },
-  {
-    id: 10,
-    title: 'Fitness Tracker',
-    brand: 'Fitbit',
-    price: 79.99,
-    type: 'Wearable',
-    coverImage: imgDevice,
-    isFavorite: true,
-  },
-];
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  addDevice,
+  changeFilter,
+  deleteDevice,
+  onToggleFavorite,
+  selectDevices,
+  selectFilter,
+} from 'redux/devicesSlice';
+import {
+  closeModal,
+  openModal,
+  selectModalData,
+  selectModalOpen,
+} from 'redux/modalSlice';
 
 export const App = () => {
-  const [devices, setDevices] = useState(devicesData);
-  const [filter, setFilter] = useState('');
-  const [isOpen, setisOpen] = useState(false);
-  const [modalData, setmodalData] = useState('');
+  // const [devices, setDevices] = useState(devicesData);
+  // const [filter, setFilter] = useState('');
+  const devices = useSelector(selectDevices);
+  const filter = useSelector(selectFilter);
+  const dispatch = useDispatch();
+  const isOpen = useSelector(selectModalOpen);
+  const modalData = useSelector(selectModalData);
+  // const [isOpen, setisOpen] = useState(false);
+  // const [modalData, setmodalData] = useState('');
   const onDelete = deviceId => {
-    setDevices(devices.filter(device => device.id !== deviceId));
+    dispatch(deleteDevice(deviceId));
   };
 
   const onChangeFilter = event => {
-    setFilter(event.target.value);
+    dispatch(changeFilter(event.target.value));
   };
 
   const onOpenModal = data => {
-    setisOpen(true);
-    setmodalData(data);
+    dispatch(openModal(data));
   };
 
   const onCloseModal = () => {
-    setisOpen(false);
+    dispatch(closeModal());
   };
 
   const toggleFavorite = deviceId => {
-    setDevices(
-      devices.map(device => {
-        if (device.id === deviceId) {
-          return {
-            ...device,
-            isFavorite: !device.isFavorite,
-          };
-        }
-        return device;
-      })
-    );
+    dispatch(onToggleFavorite(deviceId));
   };
 
   const onAddDevice = formData => {
@@ -146,7 +61,7 @@ export const App = () => {
       coverImage: imgDevice,
       id: nanoid(),
     };
-    setDevices([...devices, finalDevice]);
+    dispatch(addDevice(finalDevice));
   };
 
   const filteredPosts = devices.filter(device =>
